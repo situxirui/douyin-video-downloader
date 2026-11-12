@@ -7,3 +7,9 @@ __pycache__/
 *.tmp
 .DS_Store
 Thumbs.db
+
+# local probe / scratch files
+probe.py
+probe*.py
+page.html
+body_*.txt
