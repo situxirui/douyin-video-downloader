@@ -1,5 +1,12 @@
 # 更新日志
 
+## v1.3 - 2026-11-17
+
+- 新增 `wx_channels_download.py`，支持下载微信视频号视频（`weixin.qq.com/sph/...` 分享链接或包含链接的分享文字）。
+- 先通过官方预览接口读取作者和标题，再借助腾讯元宝的解析接口取得播放地址并下载 MP4。
+- 新增 `login` / `status` / `logout` 子命令；元宝 Cookie 只保存在本机 `~/.config/wx-channels/auth.json`（权限 600）。
+- 支持 `--out-dir`、`--cookie-file`、`--quality h264|h265`，以及环境变量 `YUANBAO_COOKIE`。
+
 ## v1.2 - 2026-11-13
 
 - 新增 `douyin_download.py`（推荐日常使用）。

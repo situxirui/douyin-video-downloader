@@ -13,3 +13,6 @@ probe.py
 probe*.py
 page.html
 body_*.txt
+
+# 视频号登录凭据，不要提交
+auth.json
