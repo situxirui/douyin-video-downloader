@@ -14,5 +14,17 @@ probe*.py
 page.html
 body_*.txt
 
-# 视频号登录凭据，不要提交
+# 视频号登录凭据和本地 Cookie，不要提交
 auth.json
+**/auth.json
+cookie*.txt
+*.cookie
+
+# 本地下载输出
+downloads/
+output/
+test_output/
+
+# 虚拟环境
+.venv/
+venv/

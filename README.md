@@ -10,8 +10,8 @@
 | --- | --- | --- | --- | --- |
 | v1.0 | `douyin_dl.py` | Windows + Microsoft Edge | 视频 ID、完整链接，或从 Edge 浏览记录自动检测 | 原始版本 |
 | v1.1 | `douyin_dl_linux.py` | Linux + Google Chrome / Chromium | 视频 ID 或 douyin.com 完整链接 | 在 v1.0 基础上适配 Linux 的分支 |
-| **v1.2（推荐）** | `douyin_download.py` | Linux + Google Chrome / Chromium | 视频 ID、链接，或从抖音 App 复制的分享口令（含 `v.douyin.com` 短链接）；也支持从标准输入读取 | 功能最完整，日常使用建议选这个 |
-| v1.3 | `wx_channels_download.py` | Linux + Python（登录时需要 Chrome / Chromium） | 微信视频号分享链接（`weixin.qq.com/sph/...`）或包含链接的分享文字 | 新增：下载微信视频号视频，需要登录一次腾讯元宝 |
+| **v1.2（抖音推荐）** | `douyin_download.py` | Linux + Google Chrome / Chromium | 视频 ID、链接，或从抖音 App 复制的分享口令（含 `v.douyin.com` 短链接）；也支持从标准输入读取 | 功能最完整，日常使用建议选这个 |
+| **v1.4（视频号）** | `wx_channels_download.py` | Windows / macOS / Linux；登录时需要 Chrome 或 Edge | 微信视频号分享链接（`weixin.qq.com/sph/...`）、包含链接的分享文字、多条链接或文本文件 | 支持批量下载和双击启动；需要登录一次腾讯元宝 |
 
 ## 环境要求
 
@@ -72,33 +72,64 @@ echo "分享文字" | python3 douyin_download.py -
 python3 douyin_download.py --out-dir ./videos -
 ```
 
-## 微信视频号下载（v1.3）
+## 微信视频号下载（v1.4）
 
 视频号和抖音不一样：微信官方分享页只会跳到预览页，给出封面、标题和“可扫码前往微信观看”，不会给出播放地址，浏览器拦截也拦不到。所以 `wx_channels_download.py` 借助腾讯元宝（yuanbao.tencent.com）的解析接口换取播放地址，需要先登录一次元宝。
 
+### 环境要求
+
+- Python 3.8 或更高版本（安装时请加入 PATH）
+- 登录时需要本机已安装 **Google Chrome** 或 **Microsoft Edge**（Chromium 也可以），并且要在有图形界面的桌面上运行，方便用微信扫码
+- 下载本身不需要再打开浏览器；`websocket-client` 只在运行 `login` 时需要（可执行 `pip install websocket-client`，脚本不会自动安装任何软件包）
+
+### 双击使用
+
+把仓库下载或克隆到本机后：
+
+1. **Windows**：双击 `wx_channels_download.bat`
+2. **macOS**：双击 `wx_channels_download.command`（若系统提示无法打开，可先在终端执行 `chmod +x wx_channels_download.command`，或在访达中右键选择“打开”）
+
+窗口打开后会出现菜单。第一次请先选「登录腾讯元宝」，用微信扫码；登录成功后凭据会保存在本机。之后选「下载视频」，把一条或多条分享链接（或微信分享文字）粘贴进去，单独一行输入 `END` 再回车即可开始下载。也可以在菜单里改保存目录，默认是 `~/Downloads`。
+
+出错时窗口不会立刻关掉，方便查看提示。
+
+### 命令行用法
+
 ```bash
-# 第一次使用：打开 Chrome，用微信扫码登录腾讯元宝（只需一次）
+# 第一次使用：打开 Chrome 或 Edge，用微信扫码登录腾讯元宝（只需一次）
 python3 wx_channels_download.py login
 
-# 下载视频号视频
+# 下载一条视频
 python3 wx_channels_download.py --out-dir ~/Downloads "https://weixin.qq.com/sph/xxxx"
 
-# 也可以直接粘贴带链接的分享文字，或从标准输入读取
+# 一次下载多条（多个参数、一段分享文字里的多条链接都可以）
+python3 wx_channels_download.py "https://weixin.qq.com/sph/xxxx" "https://weixin.qq.com/sph/yyyy"
+python3 wx_channels_download.py --input-file links.txt
+python3 wx_channels_download.py --out-dir ~/Downloads "分享文字里可以有多条 https://weixin.qq.com/sph/xxxx"
+
+# 从标准输入读取
 echo "分享文字 https://weixin.qq.com/sph/xxxx" | python3 wx_channels_download.py -
+
+# 打开交互菜单（和双击启动是同一套界面）
+python3 wx_channels_download.py menu
 
 # 查看或清除已保存的登录
 python3 wx_channels_download.py status
 python3 wx_channels_download.py logout
 ```
 
-可选参数：`--cookie-file FILE` 从文件读取元宝 Cookie，`--quality h264|h265` 选择优先的编码（默认 h264）。也可以用环境变量 `YUANBAO_COOKIE` 传入。
+`links.txt` 需为 UTF-8 编码，每行可以是链接、分享文字或 `#` 开头的注释。重复链接会按出现顺序去重。批量下载时，一条失败不会中断其余条目，最后会打印汇总；若有失败，进程会返回非 0 退出码。
+
+可选参数：`--input-file FILE` 从文本文件读取链接，`--cookie-file FILE` 从文件读取元宝 Cookie，`--quality h264|h265` 选择优先的编码（默认 h264）。也可以用环境变量 `YUANBAO_COOKIE` 传入。
 
 注意事项：
 
-- 元宝登录信息只保存在本机 `~/.config/wx-channels/auth.json`（权限 600），脚本不会把它打印出来。不要把这个文件提交到 Git 或发给别人。
+- 元宝登录信息只保存在本机，脚本不会把它打印出来。不要把这个文件提交到 Git 或发给别人。
+  - Windows：`%APPDATA%\wx-channels\auth.json`
+  - macOS / Linux：`~/.config/wx-channels/auth.json`（权限 600）
 - 登录过期后重新运行一次 `login` 即可。
 - 付费、私密或已删除的视频拿不到播放地址。
-- 频繁批量解析可能触发元宝账号的风控，日常少量使用一般没问题。
+- 当前脚本只下载视频，不下载图文作品。
 
 ## 工作原理（Linux 版）
 
@@ -114,7 +145,7 @@ Windows 原版思路相同，只是启动的是无头 Microsoft Edge，并额外
 
 - 不支持图文帖（地址中含 `/note/` 或 `/slides/`），脚本会提示后退出，不会保存为 MP4。
 - **下载无需登录抖音账号**。
-- 一次只下载一条视频。
+- 抖音脚本一次只下载一条视频；视频号脚本支持一次下载多条。
 - 页面结构或媒体域名若再次调整，可能需要更新拦截规则。
 - 本工具仅供个人学习与备份自己有权访问的内容使用，请遵守抖音用户协议及当地法律法规，不得用于侵权或商业用途。
 

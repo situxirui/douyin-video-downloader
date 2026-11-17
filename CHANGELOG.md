@@ -1,5 +1,14 @@
 # 更新日志
 
+## v1.4 - 2026-11-17
+
+- 微信视频号脚本支持一次下载多条：可传入多个链接、粘贴含多条链接的分享文字、或用 `--input-file` 读取 UTF-8 文本文件；重复链接会按出现顺序去重。
+- 批量下载逐条进行，一条失败不会中断其余条目，结束时打印汇总，并给出有意义的退出码。
+- 新增交互菜单（`python3 wx_channels_download.py menu`）：可粘贴多行链接（单独一行输入 `END` 结束）、选择保存目录，以及登录 / 查看状态 / 退出登录。
+- 新增双击启动工具：`wx_channels_download.bat`（Windows）和 `wx_channels_download.command`（macOS），会自动查找 Python 3.8+，出错后窗口保持打开。
+- 登录时会在 Windows / macOS / Linux 上查找 Google Chrome 或 Microsoft Edge（也可以是 Chromium）；需要图形界面以便扫码。凭据仍只保存在本机，Windows 下位于 `%APPDATA%\wx-channels\auth.json`。
+- 单条链接以及 `login` / `status` / `logout` 的原有用法保持兼容。`status` 不会打印 Cookie 或登录凭证。
+
 ## v1.3 - 2026-11-17
 
 - 新增 `wx_channels_download.py`，支持下载微信视频号视频（`weixin.qq.com/sph/...` 分享链接或包含链接的分享文字）。
